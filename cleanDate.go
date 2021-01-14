@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"time"
 )
@@ -10,7 +9,6 @@ func CleanDate(d string) time.Time {
 
 	// split date string on spaces
 	dateArr := strings.SplitAfter(d, " ")
-	fmt.Println(dateArr)
 
 	var dateArrC []string
 	// clean slice of empties
