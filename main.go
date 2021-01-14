@@ -13,7 +13,7 @@ import (
 func main() {
 	c := colly.NewCollector(
 		// specify allowed domains
-		colly.AllowedDomains("www.capitolnewsillinois.com", "capitolnewsillinois.com"),
+		colly.AllowedDomains("capitolnewsillinois.com"),
 		colly.URLFilters(
 			regexp.MustCompile("/NEWS/"),
 		),
@@ -28,29 +28,21 @@ func main() {
 
 	// get date
 	c.OnHTML(".edn_article, .edn_articleDetails", func(e *colly.HTMLElement) {
-		// get date string
-		date := e.ChildText(".edn_metaDetails")
-		// split date string on spaces
-		dateArr := strings.SplitAfter(date, " ")
-		// remove first in array ("Monday, ", "Tuesday, " etc)
-		dateArr = append(dateArr[:0], dateArr[0+1:]...)
-		// join arr back together
-		date = strings.Join(dateArr, " ")
-
-		// define time parsing layout
-		const (
-			layoutUS = "January 2, 2006"
-		)
-
-		// parse time
-		t, _ := time.Parse(layoutUS, date)
 
 		// create goquery selection
 		goquerySelection := e.DOM
+
+		// get date string
+		// date := e.ChildText(".edn_metaDetails")
+		date := goquerySelection.Find("time").Text()
+
+		// remove whitespace and the day of week
+		t := CleanDate(date)
+
 		// get headline
 		headline := goquerySelection.Find("h1").Text()
 		// get subhead (sometimes null)
-		subhead := goquerySelection.Find("h2").Text() // subhead
+		subhead := goquerySelection.Find("h2").Text()
 		// create body slice
 		var bodyArr []string
 		// get all paragraph tags
@@ -68,16 +60,17 @@ func main() {
 
 		// check if article came out today
 		if isToday(t, time.Now()) {
-			// @todo. nothing came out today, so can't test lol
 			// print out
 			fmt.Println("TODAY")
-			// if len(headline) > 0 {
-			fmt.Println("headline: ", headline)
-			fmt.Println("subhead: ", subhead)
-			fmt.Println("body: ", body)
-			fmt.Println("created_at: ", time.Now())
-			fmt.Println("updated_at: ", time.Now())
-			// }
+			// check if headline exists
+			// if no headline — we don't want it
+			if len(headline) > 0 {
+				fmt.Println("headline: ", headline)
+				fmt.Println("subhead: ", subhead)
+				fmt.Println("body: ", body)
+				fmt.Println("created_at: ", time.Now())
+				fmt.Println("updated_at: ", time.Now())
+			}
 		}
 	})
 
@@ -94,6 +87,7 @@ func main() {
 	c.Visit("https://capitolnewsillinois.com/NEWS/")
 }
 
+// check if today
 func isToday(date1, date2 time.Time) bool {
 	y1, m1, d1 := date1.Date()
 	y2, m2, d2 := date2.Date()
