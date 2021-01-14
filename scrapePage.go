@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,6 +13,21 @@ import (
 )
 
 func ScrapePage() {
+	// set true to stop scraping
+	stop := false
+	sec, _ := strconv.Atoi(os.Getenv("seconds"))
+	fmt.Println()
+
+	// start message
+	fmt.Println("Scraping for " + os.Getenv("seconds") + " seconds")
+
+	timer := time.AfterFunc((time.Duration(sec) * time.Second), func() {
+		fmt.Println("Stopping...")
+		fmt.Println("Done")
+		stop = true
+	})
+	defer timer.Stop()
+
 	c := colly.NewCollector(
 		// specify allowed domains
 		colly.AllowedDomains("capitolnewsillinois.com"),
@@ -75,7 +92,9 @@ func ScrapePage() {
 
 	// Find and visit all links
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href"))
+		if !stop {
+			e.Request.Visit(e.Attr("href"))
+		}
 	})
 
 	c.OnRequest(func(r *colly.Request) {
