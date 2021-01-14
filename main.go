@@ -19,11 +19,11 @@ func main() {
 		),
 	)
 
-	// reate limit
+	// rate limit
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  "*capitolnewsillinois*",
 		Parallelism: 2,
-		Delay:       5 * time.Second,
+		Delay:       1 * time.Second,
 	})
 
 	// get date
@@ -37,10 +37,12 @@ func main() {
 		// join arr back together
 		date = strings.Join(dateArr, " ")
 
+		// define time parsing layout
 		const (
 			layoutUS = "January 2, 2006"
 		)
 
+		// parse time
 		t, _ := time.Parse(layoutUS, date)
 
 		// create goquery selection
@@ -68,11 +70,14 @@ func main() {
 		if isToday(t, time.Now()) {
 			// @todo. nothing came out today, so can't test lol
 			// print out
-			if len(headline) > 0 {
-				fmt.Println("headline: ", headline)
-				fmt.Println("subhead: ", subhead)
-				fmt.Println("body: ", body)
-			}
+			fmt.Println("TODAY")
+			// if len(headline) > 0 {
+			fmt.Println("headline: ", headline)
+			fmt.Println("subhead: ", subhead)
+			fmt.Println("body: ", body)
+			fmt.Println("created_at: ", time.Now())
+			fmt.Println("updated_at: ", time.Now())
+			// }
 		}
 	})
 
@@ -82,8 +87,8 @@ func main() {
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println(r.URL)
 		fmt.Println("============================================================")
+		fmt.Println(r.URL)
 	})
 
 	c.Visit("https://capitolnewsillinois.com/NEWS/")
