@@ -5,8 +5,6 @@ This project will scrape [Capitol News Illinios](https://capitolnewsillinois.com
 To do
   - Customizable env variables
     - Endpoint to send content
-    - Port
-    - Cron invterval
-  - Cron set up
-  - Customizable timeframe? 
-
+    - Generate slug
+    - Generate id
+    
