@@ -116,7 +116,8 @@ func ScrapePage() {
 				// generate json from struct
 				json, _ := json.Marshal(newArticle)
 				buf := bytes.NewBuffer(json)
-				fmt.Println(buf)
+
+				SendData(buf)
 			}
 		}
 	})

@@ -8,7 +8,8 @@ import (
 
 func main() {
 	os.Setenv("cron", "* * * * *")
-	os.Setenv("seconds", "10")
+	os.Setenv("seconds", "30")
+	os.Setenv("endpoint", "http://localhost:3001/rail/test")
 
 	if len(os.Getenv("cron")) > 0 {
 		cj := cron.New()
