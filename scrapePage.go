@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -14,6 +16,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 )
+
+type article struct {
+	Id         string    `json:"id"`
+	Slug       string    `json:"slug"`
+	Headline   string    `json:"headline"`
+	Subhead    string    `json:"subhead"`
+	Body       string    `json:"body"`
+	Created_at time.Time `json:"created_at"`
+	Updated_at time.Time `json:"updated_at"`
+}
 
 func ScrapePage() {
 	// set true to stop scraping
@@ -51,28 +63,30 @@ func ScrapePage() {
 	// get date
 	c.OnHTML(".edn_article, .edn_articleDetails", func(e *colly.HTMLElement) {
 
+		// create new from article
+		newArticle := article{}
+
 		// create goquery selection
 		goquerySelection := e.DOM
 
 		// get date string
-		// date := e.ChildText(".edn_metaDetails")
 		date := goquerySelection.Find("time").Text()
 
 		// remove whitespace and the day of week
 		t := CleanDate(date)
 
 		// generate uuid
-		id := uuid.Must(uuid.NewRandom())
+		newArticle.Id = uuid.Must(uuid.NewRandom()).String()
 
 		// get headline
-		headline := goquerySelection.Find("h1").Text()
+		newArticle.Headline = goquerySelection.Find("h1").Text()
 
 		// generate slug from headline
 		// with random number to ensure unique
-		slug := slug.Make(headline) + "-" + strconv.Itoa(rand.Intn(10000))
+		newArticle.Slug = slug.Make(newArticle.Headline) + "-" + strconv.Itoa(rand.Intn(10000))
 
 		// get subhead (sometimes null)
-		subhead := goquerySelection.Find("h2").Text()
+		newArticle.Subhead = goquerySelection.Find("h2").Text()
 
 		// create body slice
 		var bodyArr []string
@@ -88,21 +102,21 @@ func ScrapePage() {
 			bodyArr = append(bodyArr, temp)
 		})
 		// convert slice to string with spaces
-		body := strings.Join(bodyArr, " ")
+		newArticle.Body = strings.Join(bodyArr, " ")
 
 		// check if article came out today
 		if IsToday(t, time.Now()) {
-			// print out
 			// check if headline exists
 			// if no headline — we don't want it
-			if len(headline) > 0 {
-				fmt.Println("id: ", id)
-				fmt.Println("headline: ", headline)
-				fmt.Println("slug: ", slug)
-				fmt.Println("subhead: ", subhead)
-				fmt.Println("body: ", body)
-				fmt.Println("created_at: ", time.Now())
-				fmt.Println("updated_at: ", time.Now())
+			if len(newArticle.Headline) > 0 {
+				// current timestamp
+				newArticle.Created_at = time.Now()
+				newArticle.Updated_at = time.Now()
+
+				// generate json from struct
+				json, _ := json.Marshal(newArticle)
+				buf := bytes.NewBuffer(json)
+				fmt.Println(buf)
 			}
 		}
 	})
