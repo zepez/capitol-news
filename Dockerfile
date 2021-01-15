@@ -11,7 +11,7 @@ ENV APP_HOME /go/src/microservices
 
 # custom 
 ENV TZ America/New_York
-ENV cron * 12 * * *
+ENV cron * 23 * * *
 ENV endpoint http://host.docker.internal:3001/
 ENV seconds 60
 

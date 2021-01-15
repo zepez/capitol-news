@@ -7,9 +7,10 @@ import (
 )
 
 func main() {
+	// env for dev
 	// os.Setenv("cron", "* * * * *")
 	// os.Setenv("seconds", "60")
-	// os.Setenv("endpoint", "http://localhost:3001/rail/test")
+	// os.Setenv("endpoint", "http://localhost:3001")
 
 	if len(os.Getenv("cron")) > 0 {
 		cj := cron.New()
