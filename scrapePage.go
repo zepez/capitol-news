@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"regexp"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
+	"github.com/gosimple/slug"
 )
 
 func ScrapePage() {
@@ -21,6 +23,7 @@ func ScrapePage() {
 	// start message
 	fmt.Println("Scraping for " + os.Getenv("seconds") + " seconds")
 
+	// after defined about of time, stop scraping.
 	timer := time.AfterFunc((time.Duration(sec) * time.Second), func() {
 		fmt.Println("Stopping...")
 		fmt.Println("Done")
@@ -28,6 +31,7 @@ func ScrapePage() {
 	})
 	defer timer.Stop()
 
+	// start colly
 	c := colly.NewCollector(
 		// specify allowed domains
 		colly.AllowedDomains("capitolnewsillinois.com"),
@@ -58,10 +62,17 @@ func ScrapePage() {
 
 		// get headline
 		headline := goquerySelection.Find("h1").Text()
+
+		// generate slug from headline
+		// with random number to ensure unique
+		slug := slug.Make(headline) + "-" + strconv.Itoa(rand.Intn(10000))
+
 		// get subhead (sometimes null)
 		subhead := goquerySelection.Find("h2").Text()
+
 		// create body slice
 		var bodyArr []string
+
 		// get all paragraph tags
 		// map through and add to slice
 		goquerySelection.Find("p").Each(func(i int, s *goquery.Selection) {
@@ -82,6 +93,7 @@ func ScrapePage() {
 			// if no headline — we don't want it
 			if len(headline) > 0 {
 				fmt.Println("headline: ", headline)
+				fmt.Println("slug: ", slug)
 				fmt.Println("subhead: ", subhead)
 				fmt.Println("body: ", body)
 				fmt.Println("created_at: ", time.Now())
