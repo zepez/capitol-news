@@ -11,6 +11,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
+	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 )
 
@@ -60,6 +61,9 @@ func ScrapePage() {
 		// remove whitespace and the day of week
 		t := CleanDate(date)
 
+		// generate uuid
+		id := uuid.Must(uuid.NewRandom())
+
 		// get headline
 		headline := goquerySelection.Find("h1").Text()
 
@@ -92,6 +96,7 @@ func ScrapePage() {
 			// check if headline exists
 			// if no headline — we don't want it
 			if len(headline) > 0 {
+				fmt.Println("id: ", id)
 				fmt.Println("headline: ", headline)
 				fmt.Println("slug: ", slug)
 				fmt.Println("subhead: ", subhead)
