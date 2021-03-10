@@ -32,5 +32,4 @@ func CleanDate(d string) time.Time {
 	t, _ := time.Parse(layoutUS, date)
 
 	return t
-
 }

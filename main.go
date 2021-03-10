@@ -19,6 +19,5 @@ func main() {
 		})
 
 		cj.Run()
-
 	}
 }
